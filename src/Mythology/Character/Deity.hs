@@ -10,10 +10,9 @@ module Mythology.Character.Deity
 
 import           Data.Morpheus.Kind     (KIND, OBJECT)
 import           Data.Morpheus.Types    (GQLType (..))
-import           Data.Text              (Text, pack)
+import           Data.Text              (Text)
 import           GHC.Generics           (Generic)
 import           Mythology.Place.Places (Realm (..))
-import           Database.Access        (query)
 
 type instance KIND Deity = OBJECT
 
@@ -27,6 +26,5 @@ data Deity = Deity
   } deriving (Generic)
 
 dbDeity :: Text -> Maybe Text -> IO (Either String Deity)
-dbDeity _ _ = do
-  name <- query
-  return $ Right $ Deity {fullName = pack name, power = Just "Shapeshifting", realm = Dream}
+dbDeity _ _ =
+  return $ Right $ Deity {fullName = "Morpheus", power = Just "Shapeshifting", realm = Dream}

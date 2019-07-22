@@ -42,6 +42,7 @@ library:
   source-dirs:          src
   exposed-modules:
     - Mythology.API
+    - SQL.API
   ghc-options:
     - -Wall
 

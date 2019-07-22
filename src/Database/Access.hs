@@ -13,19 +13,18 @@ toJson table =
   in show table'
 
 getConf :: String -> String -> IO String
-getConf x x0 = do
-    y <- lookupEnv x
-    return $ fromMaybe x0 y
+getConf v0 k = do
+    v <- lookupEnv k
+    return $ fromMaybe v0 v
 
-query :: IO String
-query = do
-    db    <- getConf "DB_NAME" "test"
-    port  <- getConf "DB_PORT" "3306"
-    user  <- getConf "DB_USER" "root"
-    pass  <- getConf "DB_PASS" "1234"
-    sql   <- getConf "query" ""
+query :: String -> IO String
+query sql = do
+    db    <- getConf "test" "DB_NAME"
+    port  <- getConf "3306" "DB_PORT"
+    user  <- getConf "root" "DB_USER"
+    pass  <- getConf "1234" "DB_PASS"
     let cdn = "Driver={MySQL Unicode};Server=127.0.0.1;Port=" ++ port ++ ";" ++
-              "User=" ++ user ++ ";Password=" ++ pass ++ ";Database=" ++ db ++";"
+              "User=" ++ user ++ ";Password=" ++ pass ++ ";Database=" ++ db ++ ";"
     conn <- connectODBC cdn
     rows <- quickQuery conn sql []
     return $ toJson rows
