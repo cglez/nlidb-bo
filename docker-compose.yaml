@@ -1,0 +1,24 @@
+version: "3"
+services:
+  api:
+    build:
+      context: ./
+      dockerfile: ./app/docker/Dockerfile
+    ports:
+      - ${API_PORT:-3000}:3000
+    networks:
+      - net
+
+  db:
+    image: mysql:latest
+    ports:
+      - ${DB_PORT:-3306}:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+    volumes:
+      - ./app/db/${DB_NAME}:/docker-entrypoint-initdb.d
+    networks:
+      - net
+
+networks:
+  net:
