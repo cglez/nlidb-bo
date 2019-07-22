@@ -5,10 +5,13 @@ module Main
   ) where
 
 import           Control.Monad.IO.Class         (liftIO)
-import           Mythology.API                  (mythologyApi)
+import           Configuration.Dotenv           (loadFile, defaultConfig)
 import           Web.Scotty                     (body, get, post, raw, file, scotty)
+import           Mythology.API                  (mythologyApi)
 
 main :: IO ()
-main = scotty 3000 $ do
-  get  "/" $ file "app/static/index.html"
-  post "/" $ raw =<< (liftIO . mythologyApi =<< body)
+main = do
+  _ <- loadFile defaultConfig
+  scotty 3000 $ do
+    get  "/" $ file "app/static/index.html"
+    post "/" $ raw =<< (liftIO . mythologyApi =<< body)

@@ -33,6 +33,7 @@ dependencies:
   - websockets            >= 0.11.0    && <= 0.12.5.3
   - wai-websockets        >= 1.0       && <= 3.5
   - uuid                  >= 1.0       && <= 1.4
+  - dotenv                >= 0.8       && <= 1
   - morpheus-graphql      == 0.1.1
   - HDBC                  >= 2.4       && <= 3
   - HDBC-odbc             >= 2.6       && <= 3
