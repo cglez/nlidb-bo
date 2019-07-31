@@ -1,6 +1,6 @@
 name:                nlidb-bo
 version:             0.0.1
-license:             Propietary
+license:             AllRightsReserved
 author:              "César González"
 maintainer:          "ceguel@gmail.com"
 copyright:           "2019 César González"
@@ -42,8 +42,7 @@ dependencies:
 library:
   source-dirs:          src
   exposed-modules:
-    - Mythology.API
-    - SQL.API
+    - GraphQL.Sql.API
   ghc-options:
     - -Wall
 

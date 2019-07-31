@@ -1,7 +1,7 @@
-module EnvFile
-    ( get
-    , getOrDef
-    ) where
+module Configuration.DotEnv
+  ( get
+  , getOrDef
+  ) where
 
 import Data.List (isPrefixOf, stripPrefix)
 

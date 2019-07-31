@@ -3,7 +3,7 @@ services:
   api:
     build:
       context: ./
-      dockerfile: ./app/docker/Dockerfile
+      dockerfile: ./docker/Dockerfile
     ports:
       - ${API_PORT:-3000}:3000
     networks:
