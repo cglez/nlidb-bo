@@ -5,36 +5,34 @@ module GraphQL.Sql.API
   ) where
 
 import           GHC.Generics                  (Generic)
-import qualified Data.ByteString.Lazy          as LB (ByteString, toStrict)
+import qualified Data.ByteString.Lazy          as LB (ByteString)
 import           Data.Text                     (Text, unpack)
-import           Data.Text.Encoding            (decodeUtf8)
-import           Data.Aeson                    (encode)
 import           Data.Morpheus                 (interpreter)
 import           Data.Morpheus.Types           (GQLRootResolver(..), ResM, gqlResolver)
-import           Database.HDBC.SqlJSON         (SqlJSON(..), toJSON)
+import           Database.HDBC.SqlJSON         (SqlJSON(..))
 import           Database.Relational.Sql       (query)
 
 newtype Query = Query
-  { sql :: SqlArgs -> ResM Text
+  { table :: TableArgs -> ResM [[SqlJSON]]
   } deriving (Generic)
 
-newtype SqlArgs = SqlArgs
+newtype TableArgs = TableArgs
   { expr :: Text
   } deriving (Generic)
 
-sqlBackend :: Text -> IO (Either String Text)
+sqlBackend :: Text -> IO (Either String [[SqlJSON]])
 sqlBackend sqlQuery = do
   result <- query . unpack $ sqlQuery
-  let jsql = map (map SqlJSON) result
-  return . Right . decodeUtf8 . LB.toStrict . encode . toJSON $ jsql
+  let jtable = map (map SqlJSON) result
+  return . Right $ jtable
 
-resolveSql :: SqlArgs -> ResM Text
-resolveSql args = gqlResolver . sqlBackend $ expr args
+resolveTable :: TableArgs -> ResM [[SqlJSON]]
+resolveTable args = gqlResolver . sqlBackend $ expr args
 
 rootResolver :: GQLRootResolver IO Query () ()
 rootResolver =
   GQLRootResolver
-    { queryResolver = return Query { sql = resolveSql }
+    { queryResolver = return Query { table = resolveTable }
     , mutationResolver = return ()
     , subscriptionResolver = return ()
     }
