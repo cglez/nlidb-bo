@@ -7,6 +7,7 @@ import           Data.Text.Encoding            (decodeLatin1)
 import           Data.Aeson                    (ToJSON, toJSON, Value(Null))
 import           Database.HDBC                 (SqlValue(..))
 
+
 newtype SqlJSON = SqlJSON SqlValue
 
 instance ToJSON SqlJSON where

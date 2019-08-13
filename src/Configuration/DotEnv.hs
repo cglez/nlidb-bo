@@ -5,6 +5,7 @@ module Configuration.DotEnv
 
 import Data.List (isPrefixOf, stripPrefix)
 
+
 getByKey :: String -> String -> Maybe String
 getByKey config k =
   let prefix = k ++ "="

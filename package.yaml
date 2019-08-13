@@ -42,7 +42,8 @@ dependencies:
 library:
   source-dirs:          src
   exposed-modules:
-    - GraphQL.Sql.API
+    - GraphQL.API
+    - AST.Parser
   ghc-options:
     - -Wall
 

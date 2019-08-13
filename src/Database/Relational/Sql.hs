@@ -6,6 +6,7 @@ import           Database.HDBC                 (SqlValue, quickQuery)
 import           Database.HDBC.ODBC            (connectODBC)
 import           Configuration.Environment     (getConf)
 
+
 -- TODO: handle errors and return IO (Either String [[SqlValue]])
 query :: String -> IO [[SqlValue]]
 query sql = do

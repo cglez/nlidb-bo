@@ -5,6 +5,7 @@ module Configuration.Environment
 import           Data.Maybe                    (fromMaybe)
 import           System.Environment            (lookupEnv)
 
+
 getConf :: String -> String -> IO String
 getConf v0 k = do
     v <- lookupEnv k
