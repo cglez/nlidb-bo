@@ -1,4 +1,4 @@
-module Database.Relational.Sql
+module Database.Relational.SQL
   ( query
   ) where
 

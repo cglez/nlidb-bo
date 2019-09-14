@@ -7,7 +7,7 @@ RUN cd /tmp && \
     cp mysql-connector-odbc-8.0.16-linux-ubuntu19.04-x86-64bit/lib/* /usr/lib/x86_64-linux-gnu/odbc/ && \
     rm -rf /tmp/*
 
-COPY docker/odbcinst.ini /etc/odbcinst.ini
+COPY docker/api/odbcinst.ini /etc/odbcinst.ini
 
 COPY app/ /opt/app/app/
 COPY .stack-work/install/x86_64-linux-tinfo6/lts-13.28/8.6.5/bin/nlidb-bo-exe /opt/app/server

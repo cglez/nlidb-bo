@@ -6,7 +6,7 @@ maintainer:          "ceguel@gmail.com"
 copyright:           "2019 César González"
 
 extra-source-files:
-  - README.md
+  - Readme.md
   - ChangeLog.md
 
 # Metadata used when publishing your package
@@ -20,59 +20,38 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
   - base                  >= 4.7       && <  5
-  - megaparsec            >= 7.0.0     && <  8.0
-  - aeson                 >= 1.0       && <= 1.5
   - bytestring            >= 0.10.4    && <  0.11
-  - text                  >= 1.2.3.0   && <  1.3
-  - containers            >= 0.4.2.1   && <  0.7
-  - utf8-string           >= 1.0.1.1   && <  1.1
-  - unordered-containers  >= 0.2.8.0   && <  0.3
-  - transformers          >= 0.3.0.0   && <  0.6
-  - scientific            >= 0.3.6.2   && <  0.4
-  - vector                >= 0.12.0.1  && <  0.13
-  - mtl                   >= 2.0       && <= 2.2.2
-  - websockets            >= 0.11.0    && <= 0.12.5.3
-  - wai-websockets        >= 1.0       && <= 3.5
-  - uuid                  >= 1.0       && <= 1.4
+  - text                  >= 1.2.3     && <  1.3
+  - aeson                 >= 1.0       && <= 1.5
   - dotenv                >= 0.8       && <= 1
-  - morpheus-graphql      == 0.1.1
+  - morpheus-graphql      >= 0.2       && <= 0.3
   - HDBC                  >= 2.4       && <  3
   - HDBC-odbc             >= 2.6       && <  3
 
 library:
-  source-dirs:          src
+  source-dirs: src
   exposed-modules:
     - GraphQL.API
-    - AST.Parser
   ghc-options:
     - -Wall
 
 executables:
   nlidb-bo-exe:
-    main:                Main.hs
-    source-dirs:         app
+    main: Main.hs
+    source-dirs: app
     ghc-options:
       - -threaded
       - -rtsopts
       - -with-rtsopts=-N
       - -Wall
     dependencies:
-      - base >= 4.7 && < 5
       - scotty
-      - aeson
-      - bytestring
-      - mtl
-      - text
-      - wai
-      - warp
-      - morpheus-graphql
-      - HDBC
       - nlidb-bo
 
 tests:
   nlidb-bo-test:
-    main:                Spec.hs
-    source-dirs:         test
+    main: Spec.hs
+    source-dirs: test
     ghc-options:
       - -threaded
       - -rtsopts

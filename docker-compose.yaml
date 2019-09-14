@@ -3,7 +3,7 @@ services:
   api:
     build:
       context: ./
-      dockerfile: ./docker/Dockerfile
+      dockerfile: ./docker/api/Dockerfile
     ports:
       - ${API_PORT:-3000}:3000
     networks:
@@ -16,7 +16,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=1234
     volumes:
-      - ./app/db/${DB_NAME}:/docker-entrypoint-initdb.d
+      - ./docker/db/data/${DB_NAME}:/docker-entrypoint-initdb.d
     networks:
       - net
 
