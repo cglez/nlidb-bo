@@ -10,13 +10,14 @@ services:
       - net
 
   db:
-    image: mysql:latest
+    image: ${DB_TYPE}:latest
     ports:
-      - ${DB_PORT:-3306}:3306
+      - ${DB_PORT:-4000}:${DB_INNER_PORT}
     environment:
       - MYSQL_ROOT_PASSWORD=${DB_PASS:-1234}
+      - POSTGRES_PASSWORD=${DB_PASS:-1234}
     volumes:
-      - ./docker/db/data/${DB_NAME}:/docker-entrypoint-initdb.d
+      - ./docker/db/${DB}/initdb:/docker-entrypoint-initdb.d
     networks:
       - net
 
