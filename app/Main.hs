@@ -11,8 +11,8 @@ import           GraphQL.API                    (gqlApi)
 
 
 main :: IO ()
-main = do
-  _ <- loadFile defaultConfig
+main = --do
+  --_ <- loadFile defaultConfig
   scotty 3000 $ do
     get  "/" $ file "app/static/index.html"
     post "/" $ raw =<< (liftIO . gqlApi =<< body)

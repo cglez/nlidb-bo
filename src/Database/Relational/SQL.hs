@@ -10,11 +10,23 @@ import           Configuration.Environment     (getConf)
 -- TODO: handle errors and return IO (Either String [[SqlValue]])
 query :: String -> IO [[SqlValue]]
 query sql = do
-    db    <- getConf "test" "DB_NAME"
-    port  <- getConf "3306" "DB_PORT"
-    user  <- getConf "root" "DB_USER"
-    pass  <- getConf "1234" "DB_PASS"
-    let cdn = "Driver={MySQL Unicode};Server=127.0.0.1;Port=" ++ port ++ ";" ++
-              "User=" ++ user ++ ";Password=" ++ pass ++ ";Database=" ++ db ++ ";"
+    cdn <- getOdbcCdn
     conn <- connectODBC cdn
     quickQuery conn sql []
+
+getOdbcCdn :: IO String
+getOdbcCdn = do
+    t    <- getConf ""     "DB_TYPE"
+    print $ "DB_TYPE: " ++ t
+    port <- getConf "4000" "DB_PORT"
+    pass <- getConf "1234" "DB_PASS"
+    let cdn = "Driver=" ++ t ++ ";Server=127.0.0.1;Port=" ++ port ++ ";"
+    if t == "mariadb" || t == "mysql" then do
+        name <- getConf "test" "DB_NAME"
+        user <- getConf "root" "DB_USER"
+        return $ cdn ++ "User=" ++ user ++ ";Password=" ++ pass ++ ";Database=" ++ name ++ ";"
+    else if t == "postgres" then do
+        user <- getConf "postgres" "DB_USER"
+        return $ cdn ++ "UID=" ++ user ++ ";PWD=" ++ pass ++ ";"
+    else
+        return ""
