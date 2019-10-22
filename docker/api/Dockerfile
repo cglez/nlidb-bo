@@ -1,6 +1,6 @@
 FROM ubuntu:19.04
 
-RUN apt-get update && apt-get install --assume-yes wget unixodbc-dev
+RUN apt-get update && apt-get install --assume-yes wget unixodbc-dev odbc-postgresql
 RUN cd /tmp && \
     wget https://dev.mysql.com/get/Downloads/Connector-ODBC/8.0/mysql-connector-odbc-8.0.16-linux-ubuntu19.04-x86-64bit.tar.gz && \
     tar -xzf mysql-connector-odbc-8.0.16-linux-ubuntu19.04-x86-64bit.tar.gz && \
