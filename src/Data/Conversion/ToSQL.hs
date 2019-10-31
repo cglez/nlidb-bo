@@ -3,7 +3,7 @@
 module Data.Conversion.ToSQL where
 
 import           Data.String                (fromString)
-import           Data.Text                  (Text, intercalate)
+import           Data.Text                  (Text, intercalate, splitOn)
 import           Data.Maybe                 (fromMaybe)
 import           Data.SemQuery              (SemQuery(..), Target(..), Function(..))
 
@@ -20,14 +20,35 @@ instance ToSQL a => ToSQL [a] where
   toSql xs = intercalate ", " $ map toSql xs
 
 instance ToSQL SemQuery where
-  toSql (SemQuery command' range' targets' conditions') =
-    command' <> " " <> toSql targets' <> " FROM " <> toSql range' <> toSql (fromMaybe "" conditions')
+  toSql (SemQuery command' targets' conditions') =
+    command' <> " " <> toSql targets' <> " FROM " <> resolveRange targets' <> toSql (fromMaybe "" conditions')
 
 instance ToSQL Target where
   toSql Target
     { function=f
-    , argument=t
-    } = f <> "(" <> fromMaybe "*" t <> ")"
+    , argument=arg
+    } = f <> "(" <> columnOf path <> ")"
+    where
+      path = splitOn "." $ fromMaybe "" arg
 
 instance ToSQL Function where
   toSql = fromString . show
+
+columnOf :: [Text] -> Text
+columnOf [_] = "*"
+columnOf [_, x] = x
+columnOf [_, _, x] = x
+columnOf _ = ""
+
+tableOf :: [Text] -> Text
+tableOf [x] = x
+tableOf [x, _] = x
+tableOf [_, x, _] = x
+tableOf _ = ""
+
+resolveRange :: [Target] -> Text
+resolveRange (Target{ argument=arg }:_) =
+  tableOf path
+  where
+    path = splitOn "." $ fromMaybe "" arg
+resolveRange _ = ""

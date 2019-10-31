@@ -19,7 +19,6 @@ import           Data.Morpheus.Types         (GQLType(..))
 data SemQuery =
   SemQuery
       { command    :: TS.Text
-      , range      :: TS.Text
       , targets    :: [Target]
       , conditions :: Maybe TS.Text
       }
@@ -27,7 +26,7 @@ data SemQuery =
 
 instance GQLType SemQuery where
   type KIND SemQuery = INPUT_OBJECT
-  description _ = "A semantic query"
+  description _ = "A semantic representation of an information query"
 
 
 data Command
