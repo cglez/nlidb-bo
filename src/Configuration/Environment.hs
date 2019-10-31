@@ -4,9 +4,11 @@ module Configuration.Environment
 
 import           Data.Maybe                    (fromMaybe)
 import           System.Environment            (lookupEnv)
+import           Configuration.Properties      (getProperty)
 
 
 getConf :: String -> String -> IO String
 getConf v0 k = do
-    v <- lookupEnv k
-    return $ fromMaybe v0 v
+  envVal <- lookupEnv k
+  dotEnvVal <- getProperty ".env" k
+  return $ fromMaybe (fromMaybe v0 dotEnvVal) envVal

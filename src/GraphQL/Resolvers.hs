@@ -30,8 +30,8 @@ resolveNlidb :: NlidbArgs -> IORes Text
 resolveNlidb = resolver . nlidbBackend . semQuery
 
 nlidbBackend :: SemQuery -> IO (Either String SQL)
-nlidbBackend semq = do
-  let sql' = toSql semq
+nlidbBackend semQuery' = do
+  let sql' = toSql semQuery'
   print sql'
   sqlBackend sql'
 

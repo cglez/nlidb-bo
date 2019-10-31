@@ -17,7 +17,6 @@ query sql = do
 getOdbcCdn :: IO String
 getOdbcCdn = do
     t    <- getConf ""     "DB_TYPE"
-    print $ "DB_TYPE: " ++ t
     port <- getConf "4000" "DB_PORT"
     pass <- getConf "1234" "DB_PASS"
     let cdn = "Driver=" ++ t ++ ";Server=127.0.0.1;Port=" ++ port ++ ";"
