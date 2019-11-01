@@ -5,7 +5,7 @@ module Data.Conversion.ToSQL where
 import           Data.String                (fromString)
 import           Data.Text                  (Text, intercalate, splitOn)
 import           Data.Maybe                 (fromMaybe)
-import           Data.SemQuery              (SemQuery(..), Target(..), Function(..))
+import           Data.SemQuery              (SemQuery(..), Target(..), Function(..), Condition(..))
 
 
 class ToSQL a where
@@ -19,15 +19,20 @@ instance ToSQL Text where
 instance ToSQL a => ToSQL [a] where
   toSql xs = intercalate ", " $ map toSql xs
 
+instance ToSQL a => ToSQL (Maybe a) where
+  toSql (Just x) = toSql x
+  toSql Nothing  = ""
+
 instance ToSQL SemQuery where
   toSql (SemQuery command' targets' conditions') =
-    command' <> " " <> toSql targets' <> " FROM " <> resolveRange targets' <> toSql (fromMaybe "" conditions')
+    command' <> " " <> toSql targets' <> " FROM " <> resolveRange targets' <> whereClause conditions'
 
 instance ToSQL Target where
   toSql Target
-    { function=f
-    , argument=arg
-    } = f <> "(" <> columnOf path <> ")"
+    { function = func
+    , argument = arg
+    }
+    = func <> "(" <> columnOf path <> ")"
     where
       path = splitOn "." $ fromMaybe "" arg
 
@@ -52,3 +57,20 @@ resolveRange (Target{ argument=arg }:_) =
   where
     path = splitOn "." $ fromMaybe "" arg
 resolveRange _ = ""
+
+
+whereClause :: [Condition] -> Text
+whereClause [] = ""
+whereClause xs = " WHERE " <> toSql xs
+
+instance ToSQL Condition where
+  toSql Condition
+    { subject = subj
+    , operator = op
+    , value = val
+    }
+    = subj <> operatorToSql op <> val
+
+operatorToSql :: Text -> Text
+operatorToSql "EQ" = "="
+operatorToSql "NEQ" = "<>"

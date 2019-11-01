@@ -6,6 +6,7 @@ module Data.SemQuery
   ( SemQuery(..)
   , Target(..)
   , Function(..)
+  , Condition(..)
   , Operator(..)
   , LogicOperator(..)
   ) where
@@ -20,7 +21,7 @@ data SemQuery =
   SemQuery
       { command    :: TS.Text
       , targets    :: [Target]
-      , conditions :: Maybe TS.Text
+      , conditions :: [Condition]
       }
   deriving (Generic)
 
@@ -29,6 +30,7 @@ instance GQLType SemQuery where
   description _ = "A semantic representation of an information query"
 
 
+-- TODO: use Command instead of Text - problem: variables object doesn't allow literals
 data Command
   = SELECT
   | INSERT
@@ -48,6 +50,17 @@ data Target =
 
 instance GQLType Target where
   type KIND Target = INPUT_OBJECT
+
+
+data Condition =
+  Condition { subject :: TS.Text
+            , operator :: TS.Text
+            , value :: TS.Text
+            }
+  deriving (Generic)
+
+instance GQLType Condition where
+  type KIND Condition = INPUT_OBJECT
 
 
 data Operator
