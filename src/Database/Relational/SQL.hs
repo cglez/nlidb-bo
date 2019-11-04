@@ -7,6 +7,13 @@ import           Database.HDBC.ODBC            (connectODBC)
 import           Configuration.Environment     (getConf)
 
 
+defaultType :: String
+defaultType = ""
+defaultPort :: String
+defaultPort = "4000"
+defaultPass :: String
+defaultPass = "1234"
+
 -- TODO: handle errors and return IO (Either String [[SqlValue]])
 query :: String -> IO [[SqlValue]]
 query sql = do
@@ -16,9 +23,9 @@ query sql = do
 
 getOdbcCdn :: IO String
 getOdbcCdn = do
-    t    <- getConf ""     "DB_TYPE"
-    port <- getConf "4000" "DB_PORT"
-    pass <- getConf "1234" "DB_PASS"
+    t    <- getConf defaultType "DB_TYPE"
+    port <- getConf defaultPort "DB_PORT"
+    pass <- getConf defaultPass "DB_PASS"
     let cdn = "Driver=" ++ t ++ ";Server=127.0.0.1;Port=" ++ port ++ ";"
     if t == "mariadb" || t == "mysql" then do
         name <- getConf "test" "DB_NAME"

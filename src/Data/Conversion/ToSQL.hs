@@ -8,10 +8,10 @@ import           Data.Maybe                 (fromMaybe)
 import           Data.SemQuery              (SemQuery(..), Target(..), Function(..), Condition(..))
 
 
+type SQL = Text
+
 class ToSQL a where
   toSql :: a -> SQL
-
-type SQL = Text
 
 instance ToSQL Text where
   toSql = id
@@ -61,7 +61,7 @@ resolveRange _ = ""
 
 whereClause :: [Condition] -> Text
 whereClause [] = ""
-whereClause xs = " WHERE " <> toSql xs
+whereClause xs = " WHERE " <> intercalate " AND " (map toSql xs)
 
 instance ToSQL Condition where
   toSql Condition
@@ -73,4 +73,9 @@ instance ToSQL Condition where
 
 operatorToSql :: Text -> Text
 operatorToSql "EQ" = "="
-operatorToSql "NEQ" = "<>"
+operatorToSql "NE" = "<>"
+operatorToSql "GT" = ">"
+operatorToSql "GTE" = ">="
+operatorToSql "LT" = "<"
+operatorToSql "LTE" = "<="
+operatorToSql _ = ""
