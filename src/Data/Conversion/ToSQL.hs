@@ -69,13 +69,21 @@ instance ToSQL Condition where
     , operator = op
     , value = val
     }
-    = subj <> operatorToSql op <> val
+    = subjectOf (splitOn "." subj) <> operatorToSql op <> val
+
+subjectOf :: [Text] -> Text
+subjectOf x = subjectToSql (tableOf x) (columnOf x)
+
+subjectToSql :: Text -> Text -> Text
+subjectToSql "" x = x
+subjectToSql x "" = x
+subjectToSql x y  = x <> "." <> y
 
 operatorToSql :: Text -> Text
-operatorToSql "EQ" = "="
-operatorToSql "NE" = "<>"
-operatorToSql "GT" = ">"
+operatorToSql "EQ"  = "="
+operatorToSql "NE"  = "<>"
+operatorToSql "GT"  = ">"
 operatorToSql "GTE" = ">="
-operatorToSql "LT" = "<"
+operatorToSql "LT"  = "<"
 operatorToSql "LTE" = "<="
-operatorToSql _ = ""
+operatorToSql _     = ""
