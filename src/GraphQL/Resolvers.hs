@@ -29,14 +29,13 @@ rootResolver =
 resolveNlidb :: NlidbArgs -> IORes Text
 resolveNlidb = resolver . nlidbBackend . semQuery
 
-nlidbBackend :: SemQuery -> IO (Either String SQL)
+nlidbBackend :: SemQuery -> IO (Either String Text)
 nlidbBackend semQuery' = do
   let sql' = toSql semQuery'
   print sql'
   sqlBackend sql'
 
-
-resolveSql :: SqlArgs -> IORes SQL
+resolveSql :: SqlArgs -> IORes Text
 resolveSql = resolver . sqlBackend . GraphQL.Schema.query
 
 sqlBackend :: SQL -> IO (Either String Text)

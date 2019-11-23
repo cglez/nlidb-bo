@@ -19,9 +19,6 @@ class ToSQL a where
 instance ToSQL SQL where
   toSql = id
 
-instance ToSQL [Target] where
-  toSql xs = intercalate ", " $ map toSql xs
-
 instance ToSQL a => ToSQL (Maybe a) where
   toSql (Just x) = toSql x
   toSql Nothing  = ""
@@ -30,39 +27,53 @@ instance ToSQL SemQuery where
   toSql (SemQuery command' targets' conditions') =
     command' <> " " <> toSql targets' <> resolveRange targets' conditions' <> toSql conditions'
 
+instance ToSQL [Target] where
+  toSql xs = intercalate ", " $ map toSql xs
+
 instance ToSQL Target where
   toSql Target
     { function = func
     , argument = arg
     }
-    = func <> "(" <> columnOf path <> ")"
-    where path = pathOf $ fromMaybe "" arg
+    = func <> "(" <> column <> ")"
+    where
+      path = pathOf $ fromMaybe "" arg
+      column = case columnOf path of
+        "" -> "*"
+        x  -> x
 
 instance ToSQL Function where
   toSql = fromString . show
 
-pathOf :: Text -> [Text]
-pathOf = splitOn "."
+type Path = (Text, Text, Text)
 
-columnOf :: [Text] -> Text
-columnOf [_] = "*"
-columnOf [_, x] = x
-columnOf [_, _, x] = x
-columnOf _ = ""
+instance ToSQL Path where
+  toSql ("", "", "") = ""
+  toSql ("", "", c)  = c
+  toSql ("", t,  "") = t
+  toSql ("", t,  c)  = t <> "." <> c
+  toSql (s,  t,  c)  = s <> "." <> t <> "." <> c
 
-tableOf :: [Text] -> Text
-tableOf [x] = x
-tableOf [x, _] = x
-tableOf [_, x, _] = x
-tableOf _ = ""
+pathOf :: Text -> Path
+pathOf x =
+  case splitOn "." x of
+    [s, t, c] -> (s, t, c)
+    [t, c]    -> ("", t, c)
+    [t]       -> ("", t, "")
+    _         -> ("", "", "")
+
+columnOf :: Path -> Text
+columnOf (_, _, c) = c
+
+tableOf :: Path -> Text
+tableOf (_, t, _) = t
 
 resolveRange :: [Target] -> [Condition] -> Text
 resolveRange [] _ = ""
 resolveRange xs ys =
   let tables = findTables xs ys
       joins = resolveJoins relationsEuro tables
-  in
-    " FROM " <> head tables <> joins
+  in  " FROM " <> head tables <> joins
 
 findTables :: [Target] -> [Condition] -> [Text]
 findTables x = nub . findTables' x
@@ -99,7 +110,7 @@ findRelation :: RelationGraph -> Text -> Text -> Maybe Relation
 findRelation graph x y =
   head' $ filter (\(a, b) ->
     (tableOf . pathOf) a == y && (tableOf . pathOf) b == x)
-    $ graph ++ map swap graph
+      $ graph ++ map swap graph
 
 instance ToSQL [Condition] where
   toSql [] = ""
@@ -111,15 +122,7 @@ instance ToSQL Condition where
     , operator = op
     , value = val
     }
-    = subjectOf (pathOf subj) <> operatorToSql op <> val
-
-subjectOf :: [Text] -> Text
-subjectOf x = subjectOf' (tableOf x) (columnOf x)
-
-subjectOf' :: Text -> Text -> Text
-subjectOf' "" x = x
-subjectOf' x "" = x
-subjectOf' x y  = x <> "." <> y
+    = toSql (pathOf subj) <> operatorToSql op <> val
 
 operatorToSql :: Text -> Text
 operatorToSql "EQ"  = "="

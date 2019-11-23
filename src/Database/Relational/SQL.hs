@@ -17,22 +17,22 @@ defaultPass = "1234"
 -- TODO: handle errors and return IO (Either String [[SqlValue]])
 query :: String -> IO [[SqlValue]]
 query sql = do
-    cdn <- getOdbcCdn
-    conn <- connectODBC cdn
+    connStr <- getOdbcConnStr
+    conn <- connectODBC connStr
     quickQuery conn sql []
 
-getOdbcCdn :: IO String
-getOdbcCdn = do
+getOdbcConnStr :: IO String
+getOdbcConnStr = do
     t    <- getConf defaultType "DB_TYPE"
     port <- getConf defaultPort "DB_PORT"
     pass <- getConf defaultPass "DB_PASS"
-    let cdn = "Driver=" ++ t ++ ";Server=127.0.0.1;Port=" ++ port ++ ";"
+    let connStr = "Driver=" ++ t ++ ";Server=127.0.0.1;Port=" ++ port ++ ";"
     if t == "mariadb" || t == "mysql" then do
         name <- getConf "test" "DB_NAME"
         user <- getConf "root" "DB_USER"
-        return $ cdn ++ "User=" ++ user ++ ";Password=" ++ pass ++ ";Database=" ++ name ++ ";"
+        return $ connStr ++ "User=" ++ user ++ ";Password=" ++ pass ++ ";Database=" ++ name ++ ";"
     else if t == "postgres" then do
         user <- getConf "postgres" "DB_USER"
-        return $ cdn ++ "UID=" ++ user ++ ";PWD=" ++ pass ++ ";"
+        return $ connStr ++ "UID=" ++ user ++ ";PWD=" ++ pass ++ ";"
     else
         return ""
