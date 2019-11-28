@@ -2,7 +2,8 @@ module Database.Relational.SQL
   ( query
   ) where
 
-import           Database.HDBC                 (SqlValue, quickQuery)
+import           Control.Exception.Base        (try)
+import           Database.HDBC                 (SqlValue, quickQuery, handleSqlError)
 import           Database.HDBC.ODBC            (connectODBC)
 import           Configuration.Environment     (getConf)
 
@@ -14,12 +15,14 @@ defaultPort = "4000"
 defaultPass :: String
 defaultPass = "1234"
 
--- TODO: handle errors and return IO (Either String [[SqlValue]])
-query :: String -> IO [[SqlValue]]
+query :: String -> IO (Either String [[SqlValue]])
 query sql = do
     connStr <- getOdbcConnStr
     conn <- connectODBC connStr
-    quickQuery conn sql []
+    res <- try $ handleSqlError $ quickQuery conn sql []
+    return $ case (res::Either IOError [[SqlValue]]) of
+      Right x -> Right x
+      Left  x -> Left . show $ x
 
 getOdbcConnStr :: IO String
 getOdbcConnStr = do
