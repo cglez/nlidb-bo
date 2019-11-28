@@ -43,8 +43,8 @@ instance GQLType Command where
 
 
 data Target =
-    Target { function :: TS.Text
-           , argument :: Maybe TS.Text
+    Target { argument :: TS.Text
+           , function :: Maybe TS.Text
            }
     deriving (Generic)
 

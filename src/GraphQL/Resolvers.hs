@@ -41,5 +41,7 @@ resolveSql = resolver . sqlBackend . GraphQL.Schema.query
 sqlBackend :: SQL -> IO (Either String Text)
 sqlBackend sql' = do
   result <- DB.query $ unpack sql'
-  return . Right . decodeUtf8 . LBS.toStrict . encode . toJSON . map (map SqlJSON) $ result
-  --return . Right $ map (map SqlJSON) result
+  return $ case result of
+    Right x -> Right . decodeUtf8 . LBS.toStrict . encode . toJSON . map (map SqlJSON) $ x
+             --Right $ map (map SqlJSON) result
+    Left x  -> Left x
