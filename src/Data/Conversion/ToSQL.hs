@@ -27,7 +27,7 @@ instance ToSQL SemQuery where
     command' <> " " <> toSql targets' <> resolveRange targets' conditions' <> toSql conditions'
 
 instance ToSQL [Target] where
-  toSql xs = intercalate ", " $ map toSql xs
+  toSql xs = intercalate ", " $ filter ("" /=) $ map toSql xs
 
 instance ToSQL Target where
   toSql Target
@@ -35,17 +35,25 @@ instance ToSQL Target where
     , argument = arg
     }
     = case func of
-      Just f  -> f <> "(" <> column <> ")"
+      Just "" -> column
+      Just f  -> f <> "(" <> column' <> ")"
       Nothing -> column
     where
-      column = case (columnOf . pathOf) arg of
+      column = case columnOf . pathOf $ arg of
+        "" -> ""
+        x  -> x
+      column' = case columnOf . pathOf $ arg of
         "" -> "*"
         x  -> x
 
 instance ToSQL Function where
   toSql = fromString . show
 
-type Path = (Text, Text, Text)
+-- SQL path components, ie `schema.table.column`
+type Schema = Text
+type Table = Text
+type Column = Text
+type Path = (Schema, Table, Column)
 
 instance ToSQL Path where
   toSql ("", "", "") = ""
@@ -62,24 +70,24 @@ pathOf x =
     [t]       -> ("", t, "")
     _         -> ("", "", "")
 
-columnOf :: Path -> Text
+columnOf :: Path -> Column
 columnOf (_, _, c) = c
 
-tableOf :: Path -> Text
+tableOf :: Path -> Table
 tableOf (_, t, _) = t
 
 -- Resolves from-clause and joins and translates them into SQL
-resolveRange :: [Target] -> [Condition] -> Text
+resolveRange :: [Target] -> [Condition] -> SQL
 resolveRange [] _ = ""
 resolveRange xs ys =
   let tables = findTables xs ys
       joins = resolveJoins relations tables
   in  " FROM " <> head tables <> joins
 
-findTables :: [Target] -> [Condition] -> [Text]
+findTables :: [Target] -> [Condition] -> [Table]
 findTables x = nub . findTables' x
 
-findTables' :: [Target] -> [Condition] -> [Text]
+findTables' :: [Target] -> [Condition] -> [Table]
 findTables' (Target{argument=arg} : xs) ys =
   let table = (tableOf . pathOf) arg
   in table : findTables' xs ys
@@ -92,11 +100,11 @@ type Relation = (Path, Path)
 type RelationGraph = [Relation]
 
 -- Generates the SQL join expressions
-resolveJoins :: RelationGraph -> [Text] -> Text
+resolveJoins :: RelationGraph -> [Table] -> SQL
 resolveJoins graph (x:xs) = foldr ((<>) . joinToSql graph x) "" xs
 resolveJoins _ [] = ""
 
-joinToSql :: RelationGraph -> Text -> Text -> Text
+joinToSql :: RelationGraph -> Table -> Table -> SQL
 joinToSql graph x y =
   let relation = findRelation graph x y
   in case relation of
@@ -108,10 +116,10 @@ head' []    = Nothing
 head' (x:_) = Just x
 
 -- Resolves the relation between two tables, if possible
-findRelation :: RelationGraph -> Text -> Text -> Maybe Relation
+findRelation :: RelationGraph -> Table -> Table -> Maybe Relation
 findRelation graph x y =
   head' $ filter (\(a, b) -> tableOf a == y && tableOf b == x)
-    $ graph ++ map swap graph
+        $ graph ++ map swap graph
 
 instance ToSQL [Condition] where
   toSql [] = ""
@@ -125,7 +133,7 @@ instance ToSQL Condition where
     }
     = toSql (pathOf subj) <> operatorToSql op <> val
 
-operatorToSql :: Text -> Text
+operatorToSql :: Text -> SQL
 operatorToSql "EQ"  = "="
 operatorToSql "NE"  = "<>"
 operatorToSql "GT"  = ">"
