@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE FlexibleInstances #-}
 
 module Data.Conversion.ToSQL where
@@ -27,7 +26,7 @@ instance ToSQL SemQuery where
     command' <> " " <> toSql targets' <> resolveRange targets' conditions' <> toSql conditions'
 
 instance ToSQL [Target] where
-  toSql xs = intercalate ", " $ filter ("" /=) $ map toSql xs
+  toSql = intercalate ", " . filter ("" /=) . map toSql
 
 instance ToSQL Target where
   toSql Target

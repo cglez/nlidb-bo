@@ -28,6 +28,8 @@ dependencies:
   - HDBC                  >= 2.4       && <  3
   - HDBC-odbc             >= 2.6       && <  3
 
+default-extensions: OverloadedStrings
+
 library:
   source-dirs: src
   exposed-modules:
